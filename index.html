@@ -1,0 +1,94 @@
+
+Step 1: Set Up a PHP Project:
+Create a new PHP project or use an existing one. If you don't have a project yet, you can initiate one with the following command in your terminal:
+
+composer init
+
+Follow the prompts to create a `composer.json` file for your project.
+
+
+
+Step 2: Install Google API Client Library:
+To interact with Google services, you'll need the Google API Client Library. Install it using Composer:
+
+composer require google/apiclient:^2.0
+
+
+
+
+
+Step 3: Configure OAuth 2.0:
+Place the downloaded JSON file containing your OAuth 2.0 client credentials in your project directory. Rename it to `credentials.json`.
+
+
+Step 4: Create the Sign-In Button:
+Create a login button on your login page, allowing users to sign in with their Google accounts. Include the following HTML code:
+
+
+<!-- Include the Google Sign-In API -->
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+
+<!-- Create a div to contain the sign-in button -->
+<div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+
+Step 5: Implement Google Sign-In Callback:
+Add the following JavaScript function to handle the Google Sign-In callback. This function will be called when a user successfully signs in.
+
+
+function onSignIn(googleUser) {
+
+  // Get user details
+  var profile = googleUser.getBasicProfile();
+
+  // Access user information
+  console.log('ID: ' + profile.getId());
+  console.log('Name: ' + profile.getName());
+  console.log('Email: ' + profile.getEmail());
+
+  // You can now send this information to your PHP backend for further processing
+
+}
+
+
+
+Step 6: Handle the Backend in PHP:
+Create a PHP script to handle the information received from the Google Sign-In callback. Extract the user details and perform any necessary authentication or user creation logic.
+
+
+<?php
+
+// Include the Google API Client Library
+require_once 'vendor/autoload.php';
+
+// Load client credentials from the file
+$client = new Google_Client();
+$client->setAuthConfig('credentials.json');
+
+// Get the user data from the front-end
+$id_token = $_POST['id_token'];
+
+// Verify the token
+$payload = $client->verifyIdToken($id_token);
+
+if ($payload) {
+
+    // Token is valid
+    $user_id = $payload['sub'];
+    $user_name = $payload['name'];
+    $user_email = $payload['email'];
+
+    // Perform actions with the user information (e.g., store in the database, create a session)
+
+    // ...
+
+    // Return a response to the front-end
+    echo json_encode(['status' => 'success', 'message' => 'User authenticated successfully']);
+
+} else {
+    // Token is invalid
+    echo json_encode(['status' => 'error', 'message' => 'Invalid token']);
+}
+
+?>
+
